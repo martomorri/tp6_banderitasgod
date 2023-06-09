@@ -1,23 +1,28 @@
-import logo from './logo.svg';
 import './App.css';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 function App() {
+  const [countries, setCountries] = useState([]);
+  const [points, setPoints] = useState(0);
+  const [random, setRandom] = useState(Math.floor(Math.random() * 221));
+
+  useEffect(() => {
+    axios.get("https://countriesnow.space/api/v0.1/countries/flag/images")
+      .then(res => {
+        console.log(res);
+        setCountries(
+          res.data.data.map(c => ({ name: c.name, flag: c.flag }))
+        )  
+      })
+    }, []);
+
+
+  // console.log(countries);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      
     </div>
   );
 }
