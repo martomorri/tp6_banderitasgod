@@ -44,14 +44,14 @@ function App() {
     );
   }, [timer])
 
-  const renderClues = (n) => {
+  const renderClues = (n, uClues = []) => {
     let nClues = [];
-    console.log(usedClues);
+    console.log(uClues);
     for (let i = 0; i < n.length; i++) {
       let x = 0;
       let pos = -1;
-      while (pos === -1 && x < usedClues.length) {
-        if(i === usedClues[x]) {
+      while (pos === -1 && x < uClues.length) {
+        if(i === uClues[x]) {
           pos = x;
         } else {
           x++;
@@ -62,17 +62,20 @@ function App() {
         (n[i] === ' ') ? nClues.push(' ') : nClues.push('-');
       }
     }
+    console.log("Estoy en renderClues()", usedClues);
     setClues(nClues);
   }
 
   const cleanClues = (n) => {
     setClues([]);
     setUsedClues([]);
+    console.log("Estoy en cleanClues()", usedClues);
     renderClues(n)
   }
 
   const giveClue = () => {
     let rClue = Math.floor(Math.random() * clues.length);
+    let uClues = [...usedClues];
     let pos = -1, i = 0;
     while (pos === -1 && i < usedClues.length) {
       if (rClue === usedClues[i]) {
@@ -83,10 +86,14 @@ function App() {
       else i++;
     }    
     if (pos === -1) {
-      setUsedClues([...usedClues, rClue]);
+      uClues.push(rClue);
+      setTimer(timer - 2);
+      console.log("usedClues!! : ", uClues);
       console.log(rClue);
     }
-    renderClues(countries[random].name);
+    setUsedClues(uClues);
+    console.log("Estoy en giveClue()", usedClues);
+    renderClues(countries[random].name, uClues);
   }
 
   const handleSubmit = (e) => {
