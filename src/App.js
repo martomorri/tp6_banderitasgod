@@ -9,8 +9,8 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [timer, setTimer] = useState(15);
   const [clues, setClues] = useState([]);
+  const [usedClues, setUsedClues] = useState([]);
   const [ref, setRef] = useState();
-  // const [clues, setClues] = useState();
 
   useEffect(() => {
     axios.get("https://countriesnow.space/api/v0.1/countries/flag/images")
@@ -44,26 +44,49 @@ function App() {
     );
   }, [timer])
 
-  const cleanClues = (n) => {
-    console.log(n.length);
-    setClues([]);
-    let nc = '';
+  const renderClues = (n) => {
+    let nClues = [];
+    console.log(usedClues);
     for (let i = 0; i < n.length; i++) {
-      console.log(i);
-      setClues([...clues, '_']);
+      let x = 0;
+      let pos = -1;
+      while (pos === -1 && x < usedClues.length) {
+        if(i === usedClues[x]) {
+          pos = x;
+        } else {
+          x++;
+        }
+      }
+      if (pos !== -1) nClues.push(n[i]);
+      else {
+        (n[i] === ' ') ? nClues.push(' ') : nClues.push('-');
+      }
     }
-    setClues(nc);
+    setClues(nClues);
+  }
+
+  const cleanClues = (n) => {
+    setClues([]);
+    setUsedClues([]);
+    renderClues(n)
   }
 
   const giveClue = () => {
-    let n = countries[random].name
-    let rc = Math.floor(Math.random() * n);
-    let nc = clues;
-    for (let i = 0; i < n.length; i++) {
-      if (i === rc) nc += n[i];
-      nc += '_ ';
+    let rClue = Math.floor(Math.random() * clues.length);
+    let pos = -1, i = 0;
+    while (pos === -1 && i < usedClues.length) {
+      if (rClue === usedClues[i]) {
+        rClue = Math.floor(Math.random() * clues.length);
+        i = 0;
+        pos = -1;
+      }
+      else i++;
+    }    
+    if (pos === -1) {
+      setUsedClues([...usedClues, rClue]);
+      console.log(rClue);
     }
-    setClues(nc);
+    renderClues(countries[random].name);
   }
 
   const handleSubmit = (e) => {
@@ -72,6 +95,7 @@ function App() {
     if (e.target.ans.value.toLowerCase() === countries[random].name.toLowerCase()) {
       setPoints(points + 10);
       setRandom(Math.floor(Math.random() * 220));
+      cleanClues(countries[random].name);
       setTimer(15);
     } else {
       if (points > 0) setPoints(points - 1);
@@ -83,6 +107,7 @@ function App() {
     if (points > 0) setPoints(points - 1);
     setTimer(15);
     setRandom(Math.floor(Math.random() * 220));
+    cleanClues(countries[random].name);
   }
 
   return (
@@ -93,8 +118,7 @@ function App() {
           <p className='h1'>Points: {points}</p>
         </div>
         <img className='flag-cont' src={countries[random].flag} alt='flag' />
-        {clues.map(c => <p className='h1 fw-bold text-white'>{c}</p>).join(" ")}
-        {/* <p className='h1 fw-bold text-white'>{clues}</p> */}
+        <h1 className='text-white fw-bold'>{clues.join('').toString()}</h1>
         <br></br>
         <form onSubmit={e => handleSubmit(e)}>
           <button className='btn btn-success' type='button' onClick={giveClue}>Clue</button>
