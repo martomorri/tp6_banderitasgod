@@ -38,6 +38,7 @@ function App() {
         if (timer > 0) setTimer(t => t-1);
         else {
           setRandom(Math.floor(Math.random() * 220));
+          setPoints(points - 1);
           setTimer(15);
         }
       }, 1000)
@@ -69,31 +70,42 @@ function App() {
   const cleanClues = (n) => {
     setClues([]);
     setUsedClues([]);
+    document.getElementById("clue").removeAttribute("disabled");
+    // clueButton.removeAttribute("disabled");
     console.log("Estoy en cleanClues()", usedClues);
     renderClues(n)
   }
 
   const giveClue = () => {
-    let rClue = Math.floor(Math.random() * clues.length);
-    let uClues = [...usedClues];
-    let pos = -1, i = 0;
-    while (pos === -1 && i < usedClues.length) {
-      if (rClue === usedClues[i]) {
-        rClue = Math.floor(Math.random() * clues.length);
-        i = 0;
-        pos = -1;
+    if (usedClues.length < 3) {
+      let rClue = Math.floor(Math.random() * clues.length);
+      let uClues = [...usedClues];
+      let pos = -1, i = 0;
+      while (pos === -1 && i < usedClues.length) {
+        if (rClue === usedClues[i]) {
+          rClue = Math.floor(Math.random() * clues.length);
+          i = 0;
+          pos = -1;
+        }
+        else if (countries[random].name[rClue] === ' ') {
+          rClue = Math.floor(Math.random() * clues.length);
+          i = 0;
+        }
+        else i++;
+      }    
+      if (pos === -1) {
+        uClues.push(rClue);
+        if (timer > 2) setTimer(timer - 2);
+        console.log("usedClues!! : ", uClues);
+        console.log(rClue);
       }
-      else i++;
-    }    
-    if (pos === -1) {
-      uClues.push(rClue);
-      setTimer(timer - 2);
-      console.log("usedClues!! : ", uClues);
-      console.log(rClue);
+      setUsedClues(uClues);
+      console.log("Estoy en giveClue()", usedClues);
+      renderClues(countries[random].name, uClues);
     }
-    setUsedClues(uClues);
-    console.log("Estoy en giveClue()", usedClues);
-    renderClues(countries[random].name, uClues);
+    else {
+      document.getElementById("clue").setAttribute("disabled", "true");
+    }
   }
 
   const handleSubmit = (e) => {
@@ -128,7 +140,7 @@ function App() {
         <h1 className='text-white fw-bold'>{clues.join('').toString()}</h1>
         <br></br>
         <form onSubmit={e => handleSubmit(e)}>
-          <button className='btn btn-success' type='button' onClick={giveClue}>Clue</button>
+          <button id="clue" className='btn btn-success' type='button' onClick={giveClue}>Clue</button>
           <input className='form-control w-25' type="text" name="ans" placeholder='Country name...'></input>
           <button className='btn btn-primary' type='submit'>Guess</button>
           <button className='btn btn-secondary' type='button' onClick={skipCountry}>Skip →</button>
