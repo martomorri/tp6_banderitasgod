@@ -38,7 +38,7 @@ function App() {
         if (timer > 0) setTimer(t => t-1);
         else {
           setRandom(Math.floor(Math.random() * 220));
-          setPoints(points - 1);
+          if (points > 0) setPoints(points - 1);
           setTimer(15);
         }
       }, 1000)
@@ -102,10 +102,11 @@ function App() {
       setUsedClues(uClues);
       console.log("Estoy en giveClue()", usedClues);
       renderClues(countries[random].name, uClues);
+      if (uClues.length === 3) document.getElementById("clue").setAttribute("disabled", "true");
     }
-    else {
-      document.getElementById("clue").setAttribute("disabled", "true");
-    }
+    // else {
+    //   document.getElementById("clue").setAttribute("disabled", "true");
+    // }
   }
 
   const handleSubmit = (e) => {
