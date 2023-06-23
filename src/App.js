@@ -11,6 +11,20 @@ function App() {
   const [clues, setClues] = useState([]);
   const [usedClues, setUsedClues] = useState([]);
   const [ref, setRef] = useState();
+  const [players, setPlayers] = useState([
+    {
+      name: 'Morro',
+      points: 75
+    },
+    {
+      name: 'Lauti',
+      points: 143
+    },
+    {
+      name: 'Nacho',
+      points: 85
+    }
+  ]);
 
   useEffect(() => {
     axios.get("https://countriesnow.space/api/v0.1/countries/flag/images")
@@ -25,17 +39,17 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if(!isLoading) {
+    if (!isLoading) {
       console.log(countries[random]);
       cleanClues(countries[random].name);
     }
   }, [random]);
 
   useEffect(() => {
-    if(ref) clearTimeout(ref);
+    if (ref) clearTimeout(ref);
     setRef(
       setTimeout(() => {
-        if (timer > 0) setTimer(t => t-1);
+        if (timer > 0) setTimer(t => t - 1);
         else {
           setRandom(Math.floor(Math.random() * 220));
           if (points > 0) setPoints(points - 1);
@@ -52,7 +66,7 @@ function App() {
       let x = 0;
       let pos = -1;
       while (pos === -1 && x < uClues.length) {
-        if(i === uClues[x]) {
+        if (i === uClues[x]) {
           pos = x;
         } else {
           x++;
@@ -92,7 +106,7 @@ function App() {
           i = 0;
         }
         else i++;
-      }    
+      }
       if (pos === -1) {
         uClues.push(rClue);
         if (timer > 2) setTimer(timer - 2);
@@ -131,12 +145,35 @@ function App() {
   }
 
   return (
-    isLoading ? <center><p>loading...</p></center> :
+    isLoading ? <center>
+      <div class="spinner-grow" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </center> :
       <div className="App">
         <div className='points'>
           <p className='h1'>Time: {timer}</p>
-          <p className='h1'>Points: {points}</p>
+          <p className='h1 '>Points: {points}</p>
         </div>
+        <table class="table table-striped leaderboard table-dark">
+          <thead>
+            <tr>
+              <th scope="col">Player</th>
+              <th scope="col">Points</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              players.map(p =>
+                <tr>
+                  <td>{p.name}</td>
+                  <td className='text-warning'>{p.points}</td>
+                </tr>
+              )
+            }
+          </tbody>
+        </table>
+
         <img className='flag-cont' src={countries[random].flag} alt='flag' />
         <h1 className='text-white fw-bold'>{clues.join('').toString()}</h1>
         <br></br>
@@ -146,6 +183,29 @@ function App() {
           <button className='btn btn-primary' type='submit'>Guess</button>
           <button className='btn btn-secondary' type='button' onClick={skipCountry}>Skip →</button>
         </form>
+
+        <button type="button" class="btn btn-danger mt-5 btn-lg" data-bs-toggle="modal" data-bs-target="#exampleModal">
+          New player
+        </button>
+
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                ...
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
   );
 }
