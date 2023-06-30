@@ -1,6 +1,9 @@
-import './App.css';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import "./App.css";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import Form from "./components/Form/Form";
+import Counter from "./components/Counter/Counter";
+import Flag from "./components/Flag/Flag";
 
 function App() {
   const [countries, setCountries] = useState([]);
@@ -11,31 +14,18 @@ function App() {
   const [clues, setClues] = useState([]);
   const [usedClues, setUsedClues] = useState([]);
   const [ref, setRef] = useState();
-  const [players, setPlayers] = useState([
-    {
-      name: 'Morro',
-      points: 75
-    },
-    {
-      name: 'Lauti',
-      points: 143
-    },
-    {
-      name: 'Nacho',
-      points: 85
-    }
-  ]);
 
   useEffect(() => {
-    axios.get("https://countriesnow.space/api/v0.1/countries/flag/images")
-      .then(res => {
+    axios
+      .get("https://countriesnow.space/api/v0.1/countries/flag/images")
+      .then((res) => {
         console.log(res);
         setCountries(
-          res.data.data.map(c => ({ name: c.name, flag: c.flag }))
-        )
+          res.data.data.map((c) => ({ name: c.name, flag: c.flag }))
+        );
         setRandom(Math.floor(Math.random() * 220));
         setIsLoading(false);
-      })
+      });
   }, []);
 
   useEffect(() => {
@@ -49,7 +39,7 @@ function App() {
     if (ref) clearTimeout(ref);
     setRef(
       setTimeout(() => {
-        if (timer > 0) setTimer(t => t - 1);
+        if (timer > 0) setTimer((t) => t - 1);
         else {
           setRandom(Math.floor(Math.random() * 220));
           if (points > 0) setPoints(points - 1);
@@ -57,7 +47,7 @@ function App() {
         }
       }, 1000)
     );
-  }, [timer])
+  }, [timer]);
 
   const renderClues = (n, uClues = []) => {
     let nClues = [];
@@ -74,38 +64,36 @@ function App() {
       }
       if (pos !== -1) nClues.push(n[i]);
       else {
-        (n[i] === ' ') ? nClues.push(' ') : nClues.push('-');
+        n[i] === " " ? nClues.push(" ") : nClues.push("-");
       }
     }
     console.log("Estoy en renderClues()", usedClues);
     setClues(nClues);
-  }
+  };
 
   const cleanClues = (n) => {
     setClues([]);
     setUsedClues([]);
     document.getElementById("clue").removeAttribute("disabled");
-    // clueButton.removeAttribute("disabled");
     console.log("Estoy en cleanClues()", usedClues);
-    renderClues(n)
-  }
+    renderClues(n);
+  };
 
   const giveClue = () => {
     if (usedClues.length < 3) {
       let rClue = Math.floor(Math.random() * clues.length);
       let uClues = [...usedClues];
-      let pos = -1, i = 0;
+      let pos = -1,
+        i = 0;
       while (pos === -1 && i < usedClues.length) {
         if (rClue === usedClues[i]) {
           rClue = Math.floor(Math.random() * clues.length);
           i = 0;
           pos = -1;
-        }
-        else if (countries[random].name[rClue] === ' ') {
+        } else if (countries[random].name[rClue] === " ") {
           rClue = Math.floor(Math.random() * clues.length);
           i = 0;
-        }
-        else i++;
+        } else i++;
       }
       if (pos === -1) {
         uClues.push(rClue);
@@ -116,17 +104,17 @@ function App() {
       setUsedClues(uClues);
       console.log("Estoy en giveClue()", usedClues);
       renderClues(countries[random].name, uClues);
-      if (uClues.length === 3) document.getElementById("clue").setAttribute("disabled", "true");
+      if (uClues.length === 3)
+        document.getElementById("clue").setAttribute("disabled", "true");
     }
-    // else {
-    //   document.getElementById("clue").setAttribute("disabled", "true");
-    // }
-  }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(countries[random].name);
-    if (e.target.ans.value.toLowerCase() === countries[random].name.toLowerCase()) {
+    if (
+      e.target.ans.value.toLowerCase() === countries[random].name.toLowerCase()
+    ) {
       setPoints(points + 10);
       setRandom(Math.floor(Math.random() * 220));
       cleanClues(countries[random].name);
@@ -135,78 +123,31 @@ function App() {
       if (points > 0) setPoints(points - 1);
     }
     e.target.ans.value = "";
-  }
+  };
 
   const skipCountry = () => {
     if (points > 0) setPoints(points - 1);
     setTimer(15);
     setRandom(Math.floor(Math.random() * 220));
     cleanClues(countries[random].name);
-  }
+  };
 
-  return (
-    isLoading ? <center>
+  return isLoading ? (
+    <center>
       <div class="spinner-grow" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
-    </center> :
-      <div className="App">
-        <div className='points'>
-          <p className='h1'>Time: {timer}</p>
-          <p className='h1 '>Points: {points}</p>
-        </div>
-        <table class="table table-striped leaderboard table-dark">
-          <thead>
-            <tr>
-              <th scope="col">Player</th>
-              <th scope="col">Points</th>
-            </tr>
-          </thead>
-          <tbody>
-            {
-              players.map(p =>
-                <tr>
-                  <td>{p.name}</td>
-                  <td className='text-warning'>{p.points}</td>
-                </tr>
-              )
-            }
-          </tbody>
-        </table>
-
-        <img className='flag-cont' src={countries[random].flag} alt='flag' />
-        <h1 className='text-white fw-bold'>{clues.join('').toString()}</h1>
-        <br></br>
-        <form onSubmit={e => handleSubmit(e)}>
-          <button id="clue" className='btn btn-success' type='button' onClick={giveClue}>Clue</button>
-          <input className='form-control w-25' type="text" name="ans" placeholder='Country name...'></input>
-          <button className='btn btn-primary' type='submit'>Guess</button>
-          <button className='btn btn-secondary' type='button' onClick={skipCountry}>Skip →</button>
-        </form>
-
-        <button type="button" class="btn btn-danger mt-5 btn-lg" data-bs-toggle="modal" data-bs-target="#exampleModal">
-          New player
-        </button>
-
-        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body">
-                ...
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
+    </center>
+  ) : (
+    <div className="App">
+      <Counter timer={timer} points={points} />
+      <Flag flag={countries[random].flag} clues={clues.join("").toString()} />
+      <Form
+        handleSubmit={handleSubmit}
+        giveClue={giveClue}
+        skipCountry={skipCountry}
+      />
+    </div>
   );
 }
 
