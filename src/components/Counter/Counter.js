@@ -1,4 +1,5 @@
 import React from 'react';
+import { number } from 'prop-types';
 
 function Counter(props) {
     return (
@@ -7,6 +8,11 @@ function Counter(props) {
           <p className='h1 '>Points: {props.points}</p>
         </div>
     );
+}
+
+Counter.propTypes = {
+    timer:number.isRequired,
+    points:number.isRequired
 }
 
 export default Counter;

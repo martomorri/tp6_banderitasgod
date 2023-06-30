@@ -1,4 +1,5 @@
 import React from 'react';
+import { func } from 'prop-types';
 
 function Form(props) {
     return (
@@ -11,6 +12,12 @@ function Form(props) {
         </form>
         </>
     );
+}
+
+Form.propTypes = {
+    handleSubmit:func.isRequired,
+    giveClue:func.isRequired,
+    skipCountry:func.isRequired
 }
 
 export default Form;

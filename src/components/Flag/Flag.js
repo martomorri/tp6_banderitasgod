@@ -1,4 +1,5 @@
 import React from 'react';
+import { string } from 'prop-types';
 
 function Flag(props) {
     return (
@@ -8,6 +9,11 @@ function Flag(props) {
         <br></br>
         </>
     );
+}
+
+Flag.propTypes = {
+    flag:string.isRequired,
+    clues:string.isRequired
 }
 
 export default Flag;
